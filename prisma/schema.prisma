@@ -1,0 +1,26 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Collection {
+  id        Int      @id @default(autoincrement())
+  name      String // collection name
+  userId    String
+  color     String
+  createdAt DateTime @default(now())
+
+  // make the name and userId unique
+  @@unique([name, userId])
+}
+
+// run npx prisma migrate dev to create a collection table
+// so our database will by synced with our schema
+// then run npx prisma studio to see the database at http://localhost:5555
