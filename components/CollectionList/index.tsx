@@ -17,10 +17,10 @@ async function CollectionList() {
         <div>CollectionList</div>
       ) : (
         <Alert className="text-center text-xl">
-          <AlertTitle className="p-3">
+          <AlertTitle className="p-2">
             It seams that you have no collections yet
           </AlertTitle>
-          <AlertDescription className="p-3">
+          <AlertDescription className="p-2">
             Create a collection to get started
           </AlertDescription>
         </Alert>

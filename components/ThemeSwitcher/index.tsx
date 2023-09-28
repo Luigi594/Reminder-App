@@ -3,9 +3,18 @@
 import { useTheme } from "next-themes";
 import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
 import { DesktopIcon, MoonIcon, SunIcon } from "@radix-ui/react-icons";
+import { useEffect, useState } from "react";
 
 function ThemeSwitcher() {
   const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  // avoid hydration mismatch
+  useEffect(() => {
+    setMounted(!mounted);
+  }, []);
+
+  if (!mounted) return null;
 
   return (
     <Tabs defaultValue={theme}>
