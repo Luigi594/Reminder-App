@@ -13,9 +13,9 @@ export default async function Home() {
         Welcome, <br /> {user.firstName} {user.lastName}
       </h1>
 
-      <CollectionList />
-
       <CreateCollection />
+
+      <CollectionList />
     </div>
   );
 }

@@ -23,3 +23,18 @@ export async function createCollection(form: createCollectionSchemaType) {
     },
   });
 }
+
+export async function deleteCollection(id: number) {
+  const user = await currentUser();
+
+  if (!user) {
+    throw new Error("You must be logged in to delete a collection.");
+  }
+
+  return await prisma.collection.delete({
+    where: {
+      id: id,
+      userId: user.id,
+    },
+  });
+}
