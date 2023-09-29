@@ -5,6 +5,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "../ui/dialog";
@@ -25,9 +26,12 @@ import {
 import { Textarea } from "../ui/textarea";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Button } from "../ui/button";
-import { CalendarIcon } from "@radix-ui/react-icons";
+import { CalendarIcon, ReloadIcon } from "@radix-ui/react-icons";
 import { format } from "date-fns";
 import { Calendar } from "../ui/calendar";
+import { createTask } from "@/actions/tasks";
+import { toast } from "../ui/use-toast";
+import { useRouter } from "next/navigation";
 
 interface Props {
   open: boolean;
@@ -38,7 +42,10 @@ interface Props {
 function CreateTaskModal({ open, setOpen, collection }: Props) {
   const openChangeWrapper = (value: boolean) => {
     setOpen(value);
+    form.reset();
   };
+
+  const router = useRouter();
 
   const form = useForm<createTaskSchemaType>({
     defaultValues: {
@@ -47,8 +54,25 @@ function CreateTaskModal({ open, setOpen, collection }: Props) {
     resolver: zodResolver(createTaskSchema),
   });
 
-  const handleOnSubmit = (data: createTaskSchemaType) => {
-    console.log(data);
+  const handleOnSubmit = async (data: createTaskSchemaType) => {
+    try {
+      await createTask(data);
+
+      openChangeWrapper(false);
+
+      toast({
+        title: "Task created!",
+        description: "Your task has been created successfully.",
+      });
+
+      router.refresh();
+    } catch (error) {
+      toast({
+        title: "Something went wrong...",
+        description: "Your task could not be created.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -73,7 +97,7 @@ function CreateTaskModal({ open, setOpen, collection }: Props) {
           </DialogDescription>
         </DialogHeader>
 
-        <div>
+        <div className="gap-4 py-4">
           <Form {...form}>
             <form className="space-y-4 flex flex-col">
               <FormField
@@ -104,9 +128,9 @@ function CreateTaskModal({ open, setOpen, collection }: Props) {
                       When should this task expire?
                     </FormDescription>
 
-                    <FormControl>
-                      <Popover>
-                        <PopoverTrigger asChild>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
                           <Button
                             variant={"outline"}
                             className={cn(
@@ -118,17 +142,19 @@ function CreateTaskModal({ open, setOpen, collection }: Props) {
                             {field.value && format(field.value, "PPP")}
                             {!field.value && <span>No expiration</span>}
                           </Button>
-                        </PopoverTrigger>
-                        <PopoverContent>
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            initialFocus
-                          />
-                        </PopoverContent>
-                      </Popover>
-                    </FormControl>
+                        </FormControl>
+                      </PopoverTrigger>
+
+                      <PopoverContent>
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          disabled={(date) => date < new Date()}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
 
                     <FormMessage />
                   </FormItem>
@@ -137,6 +163,22 @@ function CreateTaskModal({ open, setOpen, collection }: Props) {
             </form>
           </Form>
         </div>
+
+        <DialogFooter>
+          <Button
+            className={cn(
+              "w-full dark:text-white text-white",
+              CollectionColors[collection.color as CollectionColor]
+            )}
+            disabled={form.formState.isSubmitting}
+            onClick={form.handleSubmit(handleOnSubmit)}
+          >
+            Confirm
+            {form.formState.isSubmitting && (
+              <ReloadIcon className="animate-spin h-4 w-4 ml-2" />
+            )}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

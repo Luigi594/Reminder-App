@@ -28,6 +28,7 @@ import { deleteCollection } from "@/actions/collection";
 import { toast } from "../ui/use-toast";
 import { useRouter } from "next/navigation";
 import CreateTaskModal from "../CreateTaskModal";
+import TaskCard from "../TaskCard";
 
 interface Props {
   collection: Collection & {
@@ -90,12 +91,21 @@ function CollectionCard({ collection }: Props) {
               <Progress className="rounded-none" value={45} />
               <div className="flex flex-col p-4 gap-4">
                 {collection.tasks.map((task) => (
-                  <div key={task.id}>Mocked</div>
+                  <TaskCard key={task.id} task={task} />
                 ))}
               </div>
             </>
           ) : (
-            <div>No tasks yet</div>
+            <Button
+              variant={"ghost"}
+              className="flex items-center justify-center gap-1 p-8 py-12 rounded-none"
+              onClick={() => setShowCreateModal(true)}
+            >
+              <p>There are no tasks yet:</p>
+              <span className="underline decoration-slate-400">
+                Go ahead and create one
+              </span>
+            </Button>
           )}
 
           <Separator />
