@@ -29,6 +29,7 @@ import { toast } from "../ui/use-toast";
 import { useRouter } from "next/navigation";
 import CreateTaskModal from "../CreateTaskModal";
 import TaskCard from "../TaskCard";
+import useGetProgressBar from "@/hooks/useGetProgressBar";
 
 interface Props {
   collection: Collection & {
@@ -41,6 +42,8 @@ function CollectionCard({ collection }: Props) {
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   const router = useRouter();
+
+  const { progress } = useGetProgressBar({ collection });
 
   const removeCollection = async () => {
     try {
@@ -68,6 +71,7 @@ function CollectionCard({ collection }: Props) {
         setOpen={setShowCreateModal}
         collection={collection}
       />
+
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
         <CollapsibleTrigger asChild>
           <Button
@@ -88,11 +92,17 @@ function CollectionCard({ collection }: Props) {
         <CollapsibleContent className="flex rounded-b-md flex-col dark:bg-neutral-900 shadow-lg">
           {collection.tasks.length > 0 ? (
             <>
-              <Progress className="rounded-none" value={45} />
+              <Progress className="rounded-none" value={progress} />
               <div className="flex flex-col p-4 gap-4">
-                {collection.tasks.map((task) => (
-                  <TaskCard key={task.id} task={task} />
-                ))}
+                {collection.tasks
+                  ?.sort((a, b) => {
+                    return new Date(a.expiresAt!) > new Date(b.expiresAt!)
+                      ? 1
+                      : -1;
+                  })
+                  .map((task) => (
+                    <TaskCard key={task.id} task={task} />
+                  ))}
               </div>
             </>
           ) : (
